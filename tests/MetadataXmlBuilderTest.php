@@ -8,6 +8,8 @@ class MetadataXmlBuilderTest extends PKPTestCase
 {
     private $metadataXmlBuilder;
     private $xmlPath = '/tmp/scholarone_test_metadata.xml';
+    private $clientKey = '59b4ca87-2c51-exemplo-4a62';
+    private $journalShortName = 'lepiduspreprints';
 
     private function createExpectedXml()
     {
@@ -36,7 +38,22 @@ class MetadataXmlBuilderTest extends PKPTestCase
 
     private function createJournalMetaNode($dom)
     {
-        return $dom->createElement('journal-meta');
+        $journalMetaNode = $dom->createElement('journal-meta');
+
+        $journalIdNode = $dom->createElement('journal-id');
+        $journalIdNode->setAttribute('journal-id-type', 'publisher');
+        $journalIdNode->appendChild($dom->createTextNode($this->clientKey));
+
+        $journalMetaNode->appendChild($journalIdNode);
+
+        $journalTitleGroupNode = $dom->createElement('journal-title-group');
+        $journalTitleNode = $dom->createElement('journal-title');
+        $journalTitleNode->appendChild($dom->createTextNode($this->journalShortName));
+        $journalTitleGroupNode->appendChild($journalTitleNode);
+
+        $journalMetaNode->appendChild($journalTitleGroupNode);
+
+        return $journalMetaNode;
     }
 
     private function createArticleMetaNode($dom)
@@ -46,7 +63,7 @@ class MetadataXmlBuilderTest extends PKPTestCase
 
     public function testBuildsMetadataXml(): void
     {
-        $metadataXmlBuilder = new MetadataXmlBuilder();
+        $metadataXmlBuilder = new MetadataXmlBuilder($this->clientKey, $this->journalShortName);
         $metadataXmlBuilder->createMetadataXml($this->xmlPath);
         $writtenXml = new DOMDocument();
         $writtenXml->load($this->xmlPath);

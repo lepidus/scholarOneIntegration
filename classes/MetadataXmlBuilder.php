@@ -6,6 +6,15 @@ use DOMDocument;
 
 class MetadataXmlBuilder
 {
+    private $clientKey;
+    private $journalShortName;
+
+    public function __construct(string $clientKey, string $journalShortName)
+    {
+        $this->clientKey = $clientKey;
+        $this->journalShortName = $journalShortName;
+    }
+
     public function createMetadataXml(string $xmlFilePath): void
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
@@ -33,7 +42,22 @@ class MetadataXmlBuilder
 
     private function createJournalMetaNode($dom)
     {
-        return $dom->createElement('journal-meta');
+        $journalMetaNode = $dom->createElement('journal-meta');
+
+        $journalIdNode = $dom->createElement('journal-id');
+        $journalIdNode->setAttribute('journal-id-type', 'publisher');
+        $journalIdNode->appendChild($dom->createTextNode($this->clientKey));
+
+        $journalMetaNode->appendChild($journalIdNode);
+
+        $journalTitleGroupNode = $dom->createElement('journal-title-group');
+        $journalTitleNode = $dom->createElement('journal-title');
+        $journalTitleNode->appendChild($dom->createTextNode($this->journalShortName));
+        $journalTitleGroupNode->appendChild($journalTitleNode);
+
+        $journalMetaNode->appendChild($journalTitleGroupNode);
+
+        return $journalMetaNode;
     }
 
     private function createArticleMetaNode($dom)
