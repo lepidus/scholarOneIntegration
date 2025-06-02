@@ -72,8 +72,13 @@ class MetadataXmlBuilder
         $fullTitle = $publication->getLocalizedFullTitle($locale);
         $articleTitleNode->appendChild($dom->createTextNode($fullTitle));
         $titleGroupNode->appendChild($articleTitleNode);
-
         $articleMetaNode->appendChild($titleGroupNode);
+
+        $abstractNode = $dom->createElement('abstract');
+        $paragraph = $dom->createElement('p');
+        $paragraph->appendChild($dom->createTextNode($publication->getLocalizedData('abstract', $locale)));
+        $abstractNode->appendChild($paragraph);
+        $articleMetaNode->appendChild($abstractNode);
 
         return $articleMetaNode;
     }

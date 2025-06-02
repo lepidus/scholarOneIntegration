@@ -17,6 +17,10 @@ class MetadataXmlBuilderTest extends PKPTestCase
         'en' => 'Sad songs about love',
         'pt_BR' => 'Músicas tristes sobre amor'
     ];
+    private $abstract = [
+        'en' => 'Example of abstract',
+        'pt_BR' => 'Exemplo de resumo'
+    ];
 
     private function createExpectedXml()
     {
@@ -71,8 +75,13 @@ class MetadataXmlBuilderTest extends PKPTestCase
         $articleTitleNode = $dom->createElement('article-title');
         $articleTitleNode->appendChild($dom->createTextNode($this->title['pt_BR']));
         $titleGroupNode->appendChild($articleTitleNode);
-
         $articleMetaNode->appendChild($titleGroupNode);
+
+        $abstractNode = $dom->createElement('abstract');
+        $paragraph = $dom->createElement('p');
+        $paragraph->appendChild($dom->createTextNode($this->abstract['pt_BR']));
+        $abstractNode->appendChild($paragraph);
+        $articleMetaNode->appendChild($abstractNode);
 
         return $articleMetaNode;
     }
@@ -88,7 +97,8 @@ class MetadataXmlBuilderTest extends PKPTestCase
         $publication = new Publication();
         $publication->setAllData([
             'id' => 1245,
-            'title' => $this->title
+            'title' => $this->title,
+            'abstract' => $this->abstract
         ]);
 
         $submission->setData('currentPublicationId', $publication->getId());
