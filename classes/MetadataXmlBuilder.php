@@ -3,6 +3,7 @@
 namespace APP\plugins\generic\scholarOneIntegration\classes;
 
 use DOMDocument;
+use APP\submission\Submission;
 
 class MetadataXmlBuilder
 {
@@ -15,7 +16,7 @@ class MetadataXmlBuilder
         $this->journalShortName = $journalShortName;
     }
 
-    public function createMetadataXml(string $xmlFilePath): void
+    public function createMetadataXml(Submission $submission, string $xmlFilePath): void
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -34,7 +35,7 @@ class MetadataXmlBuilder
         $journalMetaNode = $this->createJournalMetaNode($dom);
         $frontNode->appendChild($journalMetaNode);
 
-        $articleMeta = $this->createArticleMetaNode($dom);
+        $articleMeta = $this->createArticleMetaNode($dom, $submission);
         $frontNode->appendChild($articleMeta);
 
         $dom->save($xmlFilePath);
@@ -60,8 +61,20 @@ class MetadataXmlBuilder
         return $journalMetaNode;
     }
 
-    private function createArticleMetaNode($dom)
+    private function createArticleMetaNode($dom, $submission)
     {
-        return $dom->createElement('article-meta');
+        $publication = $submission->getCurrentPublication();
+        $locale = $submission->getData('locale');
+        $articleMetaNode = $dom->createElement('article-meta');
+
+        $titleGroupNode = $dom->createElement('title-group');
+        $articleTitleNode = $dom->createElement('article-title');
+        $fullTitle = $publication->getLocalizedFullTitle($locale);
+        $articleTitleNode->appendChild($dom->createTextNode($fullTitle));
+        $titleGroupNode->appendChild($articleTitleNode);
+
+        $articleMetaNode->appendChild($titleGroupNode);
+
+        return $articleMetaNode;
     }
 }

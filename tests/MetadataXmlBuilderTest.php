@@ -1,7 +1,9 @@
 <?php
 
-use PKP\tests\PKPTestCase;
 use DOMDocument;
+use PKP\tests\PKPTestCase;
+use APP\submission\Submission;
+use APP\publication\Publication;
 use APP\plugins\generic\scholarOneIntegration\classes\MetadataXmlBuilder;
 
 class MetadataXmlBuilderTest extends PKPTestCase
@@ -10,6 +12,11 @@ class MetadataXmlBuilderTest extends PKPTestCase
     private $xmlPath = '/tmp/scholarone_test_metadata.xml';
     private $clientKey = '59b4ca87-2c51-exemplo-4a62';
     private $journalShortName = 'lepiduspreprints';
+    private $locale = 'pt_BR';
+    private $title = [
+        'en' => 'Sad songs about love',
+        'pt_BR' => 'Músicas tristes sobre amor'
+    ];
 
     private function createExpectedXml()
     {
@@ -58,13 +65,44 @@ class MetadataXmlBuilderTest extends PKPTestCase
 
     private function createArticleMetaNode($dom)
     {
-        return $dom->createElement('article-meta');
+        $articleMetaNode = $dom->createElement('article-meta');
+
+        $titleGroupNode = $dom->createElement('title-group');
+        $articleTitleNode = $dom->createElement('article-title');
+        $articleTitleNode->appendChild($dom->createTextNode($this->title['pt_BR']));
+        $titleGroupNode->appendChild($articleTitleNode);
+
+        $articleMetaNode->appendChild($titleGroupNode);
+
+        return $articleMetaNode;
+    }
+
+    private function createSubmission()
+    {
+        $submission = new Submission();
+        $submission->setAllData([
+            'id' => 1234,
+            'locale' => $this->locale
+        ]);
+
+        $publication = new Publication();
+        $publication->setAllData([
+            'id' => 1245,
+            'title' => $this->title
+        ]);
+
+        $submission->setData('currentPublicationId', $publication->getId());
+        $submission->setData('publications', [$publication]);
+
+        return $submission;
     }
 
     public function testBuildsMetadataXml(): void
     {
+        $submission = $this->createSubmission();
+
         $metadataXmlBuilder = new MetadataXmlBuilder($this->clientKey, $this->journalShortName);
-        $metadataXmlBuilder->createMetadataXml($this->xmlPath);
+        $metadataXmlBuilder->createMetadataXml($submission, $this->xmlPath);
         $writtenXml = new DOMDocument();
         $writtenXml->load($this->xmlPath);
 
