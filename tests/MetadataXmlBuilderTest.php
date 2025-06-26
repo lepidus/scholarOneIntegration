@@ -1,14 +1,15 @@
 <?php
 
 use DOMDocument;
-use PKP\tests\PKPTestCase;
+use PKP\tests\DatabaseTestCase;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\plugins\generic\scholarOneIntegration\classes\MetadataXmlBuilder;
 
-class MetadataXmlBuilderTest extends PKPTestCase
+class MetadataXmlBuilderTest extends DatabaseTestCase
 {
     private $metadataXmlBuilder;
+    private $submission;
     private $xmlPath = '/tmp/scholarone_test_metadata.xml';
     private $clientKey = '59b4ca87-2c51-exemplo-4a62';
     private $journalShortName = 'lepiduspreprints';
@@ -21,6 +22,30 @@ class MetadataXmlBuilderTest extends PKPTestCase
         'en' => 'Example of abstract',
         'pt_BR' => 'Exemplo de resumo'
     ];
+    private $keywords = [
+        'en' => ['song', 'love'],
+        'pt_BR' => ['música', 'amor']
+    ];
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->submission = $this->createSubmission();
+        $this->createSubmissionKeywords();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $publication = $this->submission->getCurrentPublication();
+        $submissionKeywordDao->deleteByPublicationId($publication->getId());
+
+        if (file_exists($this->xmlPath)) {
+            unlink($this->xmlPath);
+        }
+    }
 
     private function createExpectedXml()
     {
@@ -83,6 +108,18 @@ class MetadataXmlBuilderTest extends PKPTestCase
         $abstractNode->appendChild($paragraph);
         $articleMetaNode->appendChild($abstractNode);
 
+        $keywordsNode = $dom->createElement('kwd-group');
+        $keywordsNode->setAttribute('kwd-group-type', 'Keywords');
+        $keywordsNode->setAttribute('id', '');
+        foreach ($this->keywords['pt_BR'] as $keyword) {
+            $keywordNode = $dom->createElement('kwd');
+            $keywordNode->setAttribute('id', '');
+            $keywordNode->appendChild($dom->createTextNode($keyword));
+
+            $keywordsNode->appendChild($keywordNode);
+        }
+        $articleMetaNode->appendChild($keywordsNode);
+
         return $articleMetaNode;
     }
 
@@ -107,12 +144,17 @@ class MetadataXmlBuilderTest extends PKPTestCase
         return $submission;
     }
 
+    private function createSubmissionKeywords()
+    {
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $publication = $this->submission->getCurrentPublication();
+        $submissionKeywordDao->insertKeywords($this->keywords, $publication->getId(), false);
+    }
+
     public function testBuildsMetadataXml(): void
     {
-        $submission = $this->createSubmission();
-
         $metadataXmlBuilder = new MetadataXmlBuilder($this->clientKey, $this->journalShortName);
-        $metadataXmlBuilder->createMetadataXml($submission, $this->xmlPath);
+        $metadataXmlBuilder->createMetadataXml($this->submission, $this->xmlPath);
         $writtenXml = new DOMDocument();
         $writtenXml->load($this->xmlPath);
 

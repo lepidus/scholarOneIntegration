@@ -4,6 +4,7 @@ namespace APP\plugins\generic\scholarOneIntegration\classes;
 
 use DOMDocument;
 use APP\submission\Submission;
+use PKP\db\DAORegistry;
 
 class MetadataXmlBuilder
 {
@@ -80,6 +81,30 @@ class MetadataXmlBuilder
         $abstractNode->appendChild($paragraph);
         $articleMetaNode->appendChild($abstractNode);
 
+        $keywordsGroupsNode = $this->createKeywordsGroupNode($dom, $submission);
+        $articleMetaNode->appendChild($keywordsGroupsNode);
+
         return $articleMetaNode;
+    }
+
+    private function createKeywordsGroupNode($dom, $submission)
+    {
+        $keywordsNode = $dom->createElement('kwd-group');
+        $keywordsNode->setAttribute('kwd-group-type', 'Keywords');
+        $keywordsNode->setAttribute('id', '');
+
+        $publication = $submission->getCurrentPublication();
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $keywords = $submissionKeywordDao->getKeywords($publication->getId());
+        $submissionLocale = $submission->getData('locale');
+
+        foreach ($keywords[$submissionLocale] as $keyword) {
+            $keywordNode = $dom->createElement('kwd');
+            $keywordNode->setAttribute('id', '');
+            $keywordNode->appendChild($dom->createTextNode($keyword));
+            $keywordsNode->appendChild($keywordNode);
+        }
+
+        return $keywordsNode;
     }
 }
