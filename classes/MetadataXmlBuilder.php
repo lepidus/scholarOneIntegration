@@ -84,6 +84,9 @@ class MetadataXmlBuilder
         $keywordsGroupsNode = $this->createKeywordsGroupNode($dom, $submission);
         $articleMetaNode->appendChild($keywordsGroupsNode);
 
+        $contributorsGroupNode = $this->createContributorsGroupNode($dom, $submission);
+        $articleMetaNode->appendChild($contributorsGroupNode);
+
         return $articleMetaNode;
     }
 
@@ -106,5 +109,52 @@ class MetadataXmlBuilder
         }
 
         return $keywordsNode;
+    }
+
+    private function createContributorsGroupNode($dom, $submission)
+    {
+        $contributorsGroupNode = $dom->createElement('contrib-group');
+
+        $publication = $submission->getCurrentPublication();
+        $authors = $publication->getData('authors');
+        $affiliations = [];
+
+        foreach ($authors as $author) {
+            $contributorNode = $dom->createElement('contrib');
+            $contributorNode->setAttribute('contrib-type', 'author');
+
+            $nameNode = $dom->createElement('name');
+            $givenNameNode = $dom->createElement('given-names', $author->getLocalizedData('givenName'));
+            $familyNameNode = $dom->createElement('surname', $author->getLocalizedData('familyName'));
+            $nameNode->appendChild($givenNameNode);
+            $nameNode->appendChild($familyNameNode);
+            $contributorNode->appendChild($nameNode);
+
+            $emailNode = $dom->createElement('email', $author->getData('email'));
+            $contributorNode->appendChild($emailNode);
+
+            $affiliation = $author->getLocalizedData('affiliation');
+            if ($affiliation) {
+                $affiliations[] = $affiliation;
+                $xrefNode = $dom->createElement('xref');
+                $xrefNode->setAttribute('ref-type', 'aff');
+                $xrefNode->setAttribute('rid', 'aff' . count($affiliations));
+                $contributorNode->appendChild($xrefNode);
+            }
+
+            $contributorsGroupNode->appendChild($contributorNode);
+        }
+
+        foreach($affiliations as $index => $affiliation) {
+            $affNode = $dom->createElement('aff');
+            $affNode->setAttribute('id', 'aff' . ($index + 1));
+
+            $institutionNode = $dom->createElement('institution');
+            $institutionNode->appendChild($dom->createTextNode($affiliation));
+            $affNode->appendChild($institutionNode);
+            $contributorsGroupNode->appendChild($affNode);
+        }
+
+        return $contributorsGroupNode;
     }
 }

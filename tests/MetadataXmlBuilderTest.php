@@ -4,6 +4,7 @@ use DOMDocument;
 use PKP\tests\DatabaseTestCase;
 use APP\submission\Submission;
 use APP\publication\Publication;
+use APP\author\Author;
 use APP\plugins\generic\scholarOneIntegration\classes\MetadataXmlBuilder;
 
 class MetadataXmlBuilderTest extends DatabaseTestCase
@@ -25,6 +26,25 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
     private $keywords = [
         'en' => ['song', 'love'],
         'pt_BR' => ['música', 'amor']
+    ];
+    private $authors = [
+        [
+            'givenName' => 'John',
+            'familyName' => 'Doe',
+            'email' => 'john.doe@example.com',
+            'affiliation' => 'University of Example'
+        ],
+        [
+            'givenName' => 'Jane',
+            'familyName' => 'Smith',
+            'email' => 'jane.smith@example.com'
+        ],
+        [
+            'givenName' => 'Alice',
+            'familyName' => 'Johnson',
+            'email' => 'alice.johnson@example.com',
+            'affiliation' => 'Example University'
+        ]
     ];
 
     public function setUp(): void
@@ -120,6 +140,45 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
         }
         $articleMetaNode->appendChild($keywordsNode);
 
+        $contributorGroupNode = $dom->createElement('contrib-group');
+        $affiliations = [];
+        foreach ($this->authors as $authorData) {
+            $contributorNode = $dom->createElement('contrib');
+            $contributorNode->setAttribute('contrib-type', 'author');
+
+            $nameNode = $dom->createElement('name');
+            $givenNamesNode = $dom->createElement('given-names', $authorData['givenName']);
+            $surnameNode = $dom->createElement('surname', $authorData['familyName']);
+            $nameNode->appendChild($givenNamesNode);
+            $nameNode->appendChild($surnameNode);
+            $contributorNode->appendChild($nameNode);
+    
+            $emailNode = $dom->createElement('email', $authorData['email']);
+            $contributorNode->appendChild($emailNode);
+
+            if (isset($authorData['affiliation'])) {
+                $affiliations[] = $authorData['affiliation'];
+                $xrefNode = $dom->createElement('xref');
+                $xrefNode->setAttribute('ref-type', 'aff');
+                $xrefNode->setAttribute('rid', 'aff' . count($affiliations));
+                $contributorNode->appendChild($xrefNode);
+            }
+
+            $contributorGroupNode->appendChild($contributorNode);
+        }
+
+        foreach($affiliations as $index => $affiliation) {
+            $affNode = $dom->createElement('aff');
+            $affNode->setAttribute('id', 'aff' . ($index + 1));
+
+            $institutionNode = $dom->createElement('institution');
+            $institutionNode->appendChild($dom->createTextNode($affiliation));
+            $affNode->appendChild($institutionNode);
+            $contributorGroupNode->appendChild($affNode);
+        }
+
+        $articleMetaNode->appendChild($contributorGroupNode);
+
         return $articleMetaNode;
     }
 
@@ -138,6 +197,20 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
             'abstract' => $this->abstract
         ]);
 
+        $authors = [];
+        foreach ($this->authors as $authorData) {
+            $author = new Author();
+            $author->setData('givenName', $authorData['givenName']);
+            $author->setData('familyName', $authorData['familyName']);
+            $author->setData('email', $authorData['email']);
+            if (isset($authorData['affiliation'])) {
+                $author->setData('affiliation', $authorData['affiliation'], $this->locale);
+            }
+
+            $authors[] = $author;
+        }
+
+        $publication->setData('authors', $authors);
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
 
