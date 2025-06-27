@@ -145,7 +145,7 @@ class MetadataXmlBuilder
             $contributorsGroupNode->appendChild($contributorNode);
         }
 
-        foreach($affiliations as $index => $affiliation) {
+        foreach ($affiliations as $index => $affiliation) {
             $affNode = $dom->createElement('aff');
             $affNode->setAttribute('id', 'aff' . ($index + 1));
 
