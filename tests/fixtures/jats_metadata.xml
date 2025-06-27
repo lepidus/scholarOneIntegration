@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:oasis="http://www.niso.org/standards/z39-96/ns/oasis-exchange/table" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <front>
+    <journal-meta>
+      <journal-id journal-id-type="publisher">59b4ca87-2c51-exemplo-4a62</journal-id>
+      <journal-title-group>
+        <journal-title>lepiduspreprints</journal-title>
+      </journal-title-group>
+    </journal-meta>
+    <article-meta>
+      <title-group>
+        <article-title>Músicas tristes sobre amor</article-title>
+      </title-group>
+      <abstract>
+        <p>Exemplo de resumo</p>
+      </abstract>
+      <kwd-group kwd-group-type="Keywords" id="">
+        <kwd id="">música</kwd>
+        <kwd id="">amor</kwd>
+      </kwd-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <given-names>John</given-names>
+            <surname>Doe</surname>
+          </name>
+          <email>john.doe@example.com</email>
+          <xref ref-type="aff" rid="aff1"/>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <given-names>Jane</given-names>
+            <surname>Smith</surname>
+          </name>
+          <email>jane.smith@example.com</email>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <given-names>Alice</given-names>
+            <surname>Johnson</surname>
+          </name>
+          <email>alice.johnson@example.com</email>
+          <xref ref-type="aff" rid="aff2"/>
+        </contrib>
+        <aff id="aff1">
+          <institution>University of Example</institution>
+        </aff>
+        <aff id="aff2">
+          <institution>Example University</institution>
+        </aff>
+      </contrib-group>
+    </article-meta>
+  </front>
+</article>
