@@ -68,6 +68,14 @@ class MetadataXmlBuilder
         $locale = $submission->getData('locale');
         $articleMetaNode = $dom->createElement('article-meta');
 
+        $articleCategoriesNode = $dom->createElement('article-categories');
+        $subjGroupNode = $dom->createElement('subj-group');
+        $subjGroupNode->setAttribute('subj-group-type', 'Manuscript Type');
+        $subjectNode = $dom->createElement('subject', 'Original Article');
+        $subjGroupNode->appendChild($subjectNode);
+        $articleCategoriesNode->appendChild($subjGroupNode);
+        $articleMetaNode->appendChild($articleCategoriesNode);
+
         $titleGroupNode = $dom->createElement('title-group');
         $articleTitleNode = $dom->createElement('article-title');
         $fullTitle = $publication->getLocalizedFullTitle($locale);
