@@ -116,12 +116,14 @@ class MetadataXmlBuilder
         $contributorsGroupNode = $dom->createElement('contrib-group');
 
         $publication = $submission->getCurrentPublication();
+        $primaryContactId = $publication->getData('primaryContactId');
         $authors = $publication->getData('authors');
         $affiliations = [];
 
         foreach ($authors as $author) {
             $contributorNode = $dom->createElement('contrib');
             $contributorNode->setAttribute('contrib-type', 'author');
+            $contributorNode->setAttribute('corresp', ($author->getId() === $primaryContactId) ? 'yes' : 'no');
 
             $nameNode = $dom->createElement('name');
             $givenNameNode = $dom->createElement('given-names', $author->getLocalizedData('givenName'));

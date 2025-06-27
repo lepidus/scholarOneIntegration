@@ -19,7 +19,7 @@
         <kwd id="">amor</kwd>
       </kwd-group>
       <contrib-group>
-        <contrib contrib-type="author">
+        <contrib contrib-type="author" corresp="yes">
           <name>
             <given-names>John</given-names>
             <surname>Doe</surname>
@@ -27,14 +27,14 @@
           <email>john.doe@example.com</email>
           <xref ref-type="aff" rid="aff1"/>
         </contrib>
-        <contrib contrib-type="author">
+        <contrib contrib-type="author" corresp="no">
           <name>
             <given-names>Jane</given-names>
             <surname>Smith</surname>
           </name>
           <email>jane.smith@example.com</email>
         </contrib>
-        <contrib contrib-type="author">
+        <contrib contrib-type="author" corresp="no">
           <name>
             <given-names>Alice</given-names>
             <surname>Johnson</surname>

@@ -29,17 +29,20 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
     ];
     private $authors = [
         [
+            'id' => 1,
             'givenName' => 'John',
             'familyName' => 'Doe',
             'email' => 'john.doe@example.com',
             'affiliation' => 'University of Example'
         ],
         [
+            'id' => 2,
             'givenName' => 'Jane',
             'familyName' => 'Smith',
             'email' => 'jane.smith@example.com'
         ],
         [
+            'id' => 3,
             'givenName' => 'Alice',
             'familyName' => 'Johnson',
             'email' => 'alice.johnson@example.com',
@@ -81,12 +84,14 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
         $publication->setAllData([
             'id' => 1245,
             'title' => $this->title,
-            'abstract' => $this->abstract
+            'abstract' => $this->abstract,
+            'primaryContactId' => 1
         ]);
 
         $authors = [];
         foreach ($this->authors as $authorData) {
             $author = new Author();
+            $author->setId($authorData['id']);
             $author->setData('givenName', $authorData['givenName']);
             $author->setData('familyName', $authorData['familyName']);
             $author->setData('email', $authorData['email']);
