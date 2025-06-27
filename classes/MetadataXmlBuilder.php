@@ -17,7 +17,7 @@ class MetadataXmlBuilder
         $this->journalShortName = $journalShortName;
     }
 
-    public function createMetadataXml(Submission $submission, string $xmlFilePath): void
+    public function createMetadataXml(Submission $submission, array $galleys, string $xmlFilePath): void
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -36,7 +36,7 @@ class MetadataXmlBuilder
         $journalMetaNode = $this->createJournalMetaNode($dom);
         $frontNode->appendChild($journalMetaNode);
 
-        $articleMeta = $this->createArticleMetaNode($dom, $submission);
+        $articleMeta = $this->createArticleMetaNode($dom, $submission, $galleys);
         $frontNode->appendChild($articleMeta);
 
         $dom->save($xmlFilePath);
@@ -62,7 +62,7 @@ class MetadataXmlBuilder
         return $journalMetaNode;
     }
 
-    private function createArticleMetaNode($dom, $submission)
+    private function createArticleMetaNode($dom, $submission, $galleys)
     {
         $publication = $submission->getCurrentPublication();
         $locale = $submission->getData('locale');
@@ -94,6 +94,11 @@ class MetadataXmlBuilder
 
         $contributorsGroupNode = $this->createContributorsGroupNode($dom, $submission);
         $articleMetaNode->appendChild($contributorsGroupNode);
+
+        foreach ($galleys as $galley) {
+            $supplementaryMaterialNode = $this->createSupplementaryMaterialNode($dom, $galley);
+            $articleMetaNode->appendChild($supplementaryMaterialNode);
+        }
 
         return $articleMetaNode;
     }
@@ -166,5 +171,18 @@ class MetadataXmlBuilder
         }
 
         return $contributorsGroupNode;
+    }
+
+    private function createSupplementaryMaterialNode($dom, $galley)
+    {
+        $galleyLocale = $galley->getData('locale');
+        $submissionFile = $galley->getFile();
+        $fileName = $submissionFile->getLocalizedData('name', $galleyLocale);
+
+        $supplementaryMaterialNode = $dom->createElement('supplementary-material');
+        $supplementaryMaterialNode->setAttribute('content-type', 'Main Document');
+        $supplementaryMaterialNode->setAttribute('xlink:href', $fileName);
+
+        return $supplementaryMaterialNode;
     }
 }
