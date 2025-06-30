@@ -68,6 +68,13 @@ class MetadataXmlBuilder
         $locale = $submission->getData('locale');
         $articleMetaNode = $dom->createElement('article-meta');
 
+        $doiObject = $publication->getData('doiObject');
+        if ($doiObject) {
+            $articleIdNode = $dom->createElement('article-id', $doiObject->getData('doi'));
+            $articleIdNode->setAttribute('pub-id-type', 'doi');
+            $articleMetaNode->appendChild($articleIdNode);
+        }
+
         $articleCategoriesNode = $dom->createElement('article-categories');
         $subjGroupNode = $dom->createElement('subj-group');
         $subjGroupNode->setAttribute('subj-group-type', 'Manuscript Type');

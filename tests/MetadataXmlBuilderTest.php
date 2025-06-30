@@ -2,6 +2,7 @@
 
 use DOMDocument;
 use PKP\tests\DatabaseTestCase;
+use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\author\Author;
@@ -18,6 +19,7 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
     private $journalShortName = 'lepiduspreprints';
     private $locale = 'pt_BR';
     private $galley;
+    private $doi = '10.1234/LepidusPreprints.5678';
     private $title = [
         'en' => 'Sad songs about love',
         'pt_BR' => 'Músicas tristes sobre amor'
@@ -89,7 +91,10 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
             'id' => 1245,
             'title' => $this->title,
             'abstract' => $this->abstract,
-            'primaryContactId' => 1
+            'primaryContactId' => 1,
+            'doiObject' =>  Repo::doi()->newDataObject([
+                'doi' => $this->doi
+            ])
         ]);
 
         $authors = [];
