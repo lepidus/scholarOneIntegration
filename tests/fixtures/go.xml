@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE GO SYSTEM "S1_GO.dtd">
 <GO>
-    <header>
-        <clientkey>59b4ca87-2c51-exemplo-4a62jd-04woci</clientkey>
-        <journal_abbreviation>lepiduspreprints</journal_abbreviation>
-    </header>
+  <header>
+    <clientkey>59b4ca87-2c51-exemplo-4a62jd-04woci</clientkey>
+    <journal_abbreviation>lepiduspreprints</journal_abbreviation>
+  </header>
 </GO>
