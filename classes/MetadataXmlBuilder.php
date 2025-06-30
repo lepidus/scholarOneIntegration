@@ -138,12 +138,17 @@ class MetadataXmlBuilder
         $publication = $submission->getCurrentPublication();
         $primaryContactId = $publication->getData('primaryContactId');
         $authors = $publication->getData('authors');
+        $indexAuthor = 0;
         $affiliations = [];
 
         foreach ($authors as $author) {
             $contributorNode = $dom->createElement('contrib');
             $contributorNode->setAttribute('contrib-type', 'author');
             $contributorNode->setAttribute('corresp', ($author->getId() === $primaryContactId) ? 'yes' : 'no');
+
+            $roleNode = $dom->createElement('role');
+            $roleNode->setAttribute('content-type', $indexAuthor + 1);
+            $contributorNode->appendChild($roleNode);
 
             $nameNode = $dom->createElement('name');
             $givenNameNode = $dom->createElement('given-names', $author->getLocalizedData('givenName'));
@@ -165,6 +170,7 @@ class MetadataXmlBuilder
             }
 
             $contributorsGroupNode->appendChild($contributorNode);
+            $indexAuthor++;
         }
 
         foreach ($affiliations as $index => $affiliation) {
