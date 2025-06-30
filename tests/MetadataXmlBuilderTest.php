@@ -139,7 +139,7 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
             'path' => 'contexts/1/files/1234/129nd092.pdf',
             'mimeType' => 'application/pdf'
         ]);
-        
+
         $galley = new Galley();
         $galley->setAllData([
             'id' => 1712,
