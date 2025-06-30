@@ -76,8 +76,6 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
         }
     }
 
-
-
     private function createSubmission()
     {
         $submission = new Submission();
