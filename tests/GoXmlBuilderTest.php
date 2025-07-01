@@ -1,7 +1,7 @@
 <?php
 
 use DOMDocument;
-use PKP\tests\DatabaseTestCase;
+use PKP\tests\PKPTestCase;
 use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\publication\Publication;
@@ -10,7 +10,7 @@ use PKP\galley\Galley;
 use PKP\submissionFile\SubmissionFile;
 use APP\plugins\generic\scholarOneIntegration\classes\GoXmlBuilder;
 
-class GoXmlBuilderTest extends DatabaseTestCase
+class GoXmlBuilderTest extends PKPTestCase
 {
     private $goXmlBuilder;
     private $goXmlPath = '/tmp/scholarone_test_go.xml';
