@@ -6,8 +6,6 @@ use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\publication\Publication;
 use APP\author\Author;
-use PKP\galley\Galley;
-use PKP\submissionFile\SubmissionFile;
 use APP\plugins\generic\scholarOneIntegration\classes\MetadataXmlBuilder;
 
 class MetadataXmlBuilderTest extends DatabaseTestCase
@@ -18,7 +16,6 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
     private $clientKey = '59b4ca87-2c51-exemplo-4a62';
     private $journalShortName = 'lepiduspreprints';
     private $locale = 'pt_BR';
-    private $galley;
     private $doi = '10.1234/LepidusPreprints.5678';
     private $title = [
         'en' => 'Sad songs about love',
@@ -54,13 +51,15 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
             'affiliation' => 'Example University'
         ]
     ];
+    private $files = [
+        'main_document.pdf'
+    ];
 
     public function setUp(): void
     {
         parent::setUp();
         $this->submission = $this->createSubmission();
         $this->createSubmissionKeywords();
-        $this->galley = $this->createSubmissionGalley();
     }
 
     public function tearDown(): void
@@ -75,8 +74,6 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
             unlink($this->xmlPath);
         }
     }
-
-
 
     private function createSubmission()
     {
@@ -125,38 +122,10 @@ class MetadataXmlBuilderTest extends DatabaseTestCase
         $submissionKeywordDao->insertKeywords($this->keywords, $publication->getId(), false);
     }
 
-    private function createSubmissionGalley()
-    {
-        $submissionFile = new SubmissionFile();
-        $submissionFile->setAllData([
-            'id' => 4285,
-            'submissionId' => $this->submission->getId(),
-            'name' => [
-                'en' => "example_galley.pdf",
-                'pt_BR' => "exemplo_galley.pdf"
-            ],
-            'locale' => $this->locale,
-            'path' => 'contexts/1/files/1234/129nd092.pdf',
-            'mimeType' => 'application/pdf'
-        ]);
-
-        $galley = new Galley();
-        $galley->setAllData([
-            'id' => 1712,
-            'publicationId' => $this->submission->getCurrentPublication()->getId(),
-            'submissionFileId' => $submissionFile->getId(),
-            'locale' => $this->locale,
-            'label' => 'PDF'
-        ]);
-        $galley->_submissionFile = $submissionFile;
-
-        return $galley;
-    }
-
     public function testBuildsMetadataXml(): void
     {
         $metadataXmlBuilder = new MetadataXmlBuilder($this->clientKey, $this->journalShortName);
-        $metadataXmlBuilder->createMetadataXml($this->submission, [$this->galley], $this->xmlPath);
+        $metadataXmlBuilder->createMetadataXml($this->submission, $this->files, $this->xmlPath);
         $writtenXml = new DOMDocument();
         $writtenXml->load($this->xmlPath);
 

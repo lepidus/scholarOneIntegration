@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE GO SYSTEM "S1_GO.dtd">
+<GO>
+  <header>
+    <clientkey>59b4ca87-2c51-exemplo-4a62jd-04woci</clientkey>
+    <journal_abbreviation>lepiduspreprints</journal_abbreviation>
+  </header>
+  <package>
+    <archiveFile>scholarone_ingestion_package.zip</archiveFile>
+    <metadata-file-name>scholarone_test_metadata.xml</metadata-file-name>
+    <file-name>
+      <name>main_document.pdf</name>
+    </file-name>
+  </package>
+  <document-version version="original" attempt-submit="N"/>
+</GO>

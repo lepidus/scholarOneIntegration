@@ -58,7 +58,7 @@
           <institution>Example University</institution>
         </aff>
       </contrib-group>
-      <supplementary-material content-type="Main Document" xlink:href="exemplo_galley.pdf"/>
+      <supplementary-material content-type="Main Document" xlink:href="main_document.pdf"/>
     </article-meta>
   </front>
 </article>
