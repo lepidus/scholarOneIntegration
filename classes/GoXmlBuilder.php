@@ -17,7 +17,7 @@ class GoXmlBuilder
         $this->journalShortName = $journalShortName;
     }
 
-    public function createGoXml(string $filePath, string $metadataXmlPath): void
+    public function createGoXml(string $filePath, string $metadataXmlPath, array $files): void
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -29,17 +29,26 @@ class GoXmlBuilder
         $dom->appendChild($goNode);
 
         $headerNode = $dom->createElement('header');
+        $goNode->appendChild($headerNode);
+
         $clientKeyNode = $dom->createElement('clientkey', $this->clientKey);
         $headerNode->appendChild($clientKeyNode);
         $journalAbbreviationNode = $dom->createElement('journal_abbreviation', $this->journalShortName);
         $headerNode->appendChild($journalAbbreviationNode);
-        $goNode->appendChild($headerNode);
 
         $packageNode = $dom->createElement('package');
+        $goNode->appendChild($packageNode);
+
         $splitXmlPath = explode('/', $metadataXmlPath);
         $metadataFileNameNode = $dom->createElement('metadata-file-name', end($splitXmlPath));
         $packageNode->appendChild($metadataFileNameNode);
-        $goNode->appendChild($packageNode);
+
+        foreach ($files as $fileName) {
+            $fileNode = $dom->createElement('file-name');
+            $packageNode->appendChild($fileNode);
+            $nameNode = $dom->createElement('name', $fileName);
+            $fileNode->appendChild($nameNode);
+        }
 
         $dom->save($filePath);
     }
