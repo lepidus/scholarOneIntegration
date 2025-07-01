@@ -50,6 +50,11 @@ class GoXmlBuilder
             $fileNode->appendChild($nameNode);
         }
 
+        $documentVersionNode = $dom->createElement('document-version');
+        $documentVersionNode->setAttribute('version', 'original');
+        $documentVersionNode->setAttribute('attempt-submit', 'N');
+        $goNode->appendChild($documentVersionNode);
+
         $dom->save($filePath);
     }
 }
