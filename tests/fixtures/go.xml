@@ -6,6 +6,7 @@
     <journal_abbreviation>lepiduspreprints</journal_abbreviation>
   </header>
   <package>
+    <archiveFile>scholarone_ingestion_package.zip</archiveFile>
     <metadata-file-name>scholarone_test_metadata.xml</metadata-file-name>
     <file-name>
       <name>main_document.pdf</name>

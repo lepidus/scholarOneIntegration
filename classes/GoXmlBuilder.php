@@ -17,7 +17,7 @@ class GoXmlBuilder
         $this->journalShortName = $journalShortName;
     }
 
-    public function createGoXml(string $filePath, string $metadataXmlPath, array $files): void
+    public function createGoXml(string $filePath, string $packageFileName, string $metadataXmlPath, array $files): void
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -38,6 +38,9 @@ class GoXmlBuilder
 
         $packageNode = $dom->createElement('package');
         $goNode->appendChild($packageNode);
+
+        $archiveFileNode = $dom->createElement('archiveFile', $packageFileName);
+        $packageNode->appendChild($archiveFileNode);
 
         $splitXmlPath = explode('/', $metadataXmlPath);
         $metadataFileNameNode = $dom->createElement('metadata-file-name', end($splitXmlPath));
