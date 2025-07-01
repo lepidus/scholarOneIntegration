@@ -28,16 +28,35 @@ class GoXmlBuilder
         $goNode = $dom->createElement('GO');
         $dom->appendChild($goNode);
 
-        $headerNode = $dom->createElement('header');
+        $headerNode = $this->createHeaderNode($dom);
         $goNode->appendChild($headerNode);
+
+        $packageNode = $this->createPackageNode($dom, $packageFileName, $metadataXmlPath, $files);
+        $goNode->appendChild($packageNode);
+
+        $documentVersionNode = $dom->createElement('document-version');
+        $documentVersionNode->setAttribute('version', 'original');
+        $documentVersionNode->setAttribute('attempt-submit', 'N');
+        $goNode->appendChild($documentVersionNode);
+
+        $dom->save($filePath);
+    }
+
+    private function createHeaderNode($dom)
+    {
+        $headerNode = $dom->createElement('header');
 
         $clientKeyNode = $dom->createElement('clientkey', $this->clientKey);
         $headerNode->appendChild($clientKeyNode);
         $journalAbbreviationNode = $dom->createElement('journal_abbreviation', $this->journalShortName);
         $headerNode->appendChild($journalAbbreviationNode);
 
+        return $headerNode;
+    }
+
+    private function createPackageNode($dom, $packageFileName, $metadataXmlPath, $files)
+    {
         $packageNode = $dom->createElement('package');
-        $goNode->appendChild($packageNode);
 
         $archiveFileNode = $dom->createElement('archiveFile', $packageFileName);
         $packageNode->appendChild($archiveFileNode);
@@ -53,11 +72,6 @@ class GoXmlBuilder
             $fileNode->appendChild($nameNode);
         }
 
-        $documentVersionNode = $dom->createElement('document-version');
-        $documentVersionNode->setAttribute('version', 'original');
-        $documentVersionNode->setAttribute('attempt-submit', 'N');
-        $goNode->appendChild($documentVersionNode);
-
-        $dom->save($filePath);
+        return $packageNode;
     }
 }
