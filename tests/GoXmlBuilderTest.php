@@ -13,7 +13,8 @@ use APP\plugins\generic\scholarOneIntegration\classes\GoXmlBuilder;
 class GoXmlBuilderTest extends DatabaseTestCase
 {
     private $goXmlBuilder;
-    private $xmlPath = '/tmp/scholarone_test_go.xml';
+    private $goXmlPath = '/tmp/scholarone_test_go.xml';
+    private $metadataXmlPath = '/tmp/scholarone_test_metadata.xml';
     private $clientKey = '59b4ca87-2c51-exemplo-4a62jd-04woci';
     private $journalShortName = 'lepiduspreprints';
 
@@ -21,17 +22,17 @@ class GoXmlBuilderTest extends DatabaseTestCase
     {
         parent::tearDown();
 
-        if (file_exists($this->xmlPath)) {
-            unlink($this->xmlPath);
+        if (file_exists($this->goXmlPath)) {
+            unlink($this->goXmlPath);
         }
     }
 
     public function testBuildsGoXml(): void
     {
         $goXmlBuilder = new GoXmlBuilder($this->clientKey, $this->journalShortName);
-        $goXmlBuilder->createGoXml($this->xmlPath);
+        $goXmlBuilder->createGoXml($this->goXmlPath, $this->metadataXmlPath);
         $writtenXml = new DOMDocument();
-        $writtenXml->load($this->xmlPath);
+        $writtenXml->load($this->goXmlPath);
 
         $expectedXml = new DOMDocument();
         $expectedXml->load(__DIR__ . '/fixtures/go.xml');

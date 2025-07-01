@@ -5,4 +5,7 @@
     <clientkey>59b4ca87-2c51-exemplo-4a62jd-04woci</clientkey>
     <journal_abbreviation>lepiduspreprints</journal_abbreviation>
   </header>
+  <package>
+    <metadata-file-name>scholarone_test_metadata.xml</metadata-file-name>
+  </package>
 </GO>
