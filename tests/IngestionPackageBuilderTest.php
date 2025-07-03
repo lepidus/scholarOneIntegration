@@ -11,6 +11,8 @@ use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
 
 class IngestionPackageBuilderTest extends PKPTestCase
 {
+    private $clientKey = '59b4ca87-2c51-exemplo-4a62jd-04woci';
+    private $journalShortName = 'lepiduspreprints';
     private $submission;
     private $locale = 'pt_BR';
     private $galley;
@@ -127,8 +129,10 @@ class IngestionPackageBuilderTest extends PKPTestCase
         $packageDir = IngestionPackageBuilder::PACKAGE_DIR_SUFFIX.$this->submission->getId();
         mkdir($packageDir);
 
-        $ingestionPackageBuilder = new IngestionPackageBuilder($this->submission, [$this->galley]);
-        $extractedFiles = $ingestionPackageBuilder->extractsGalleysFiles();
+        $ingestionPackageBuilder = new IngestionPackageBuilder($this->clientKey, $this->journalShortName);
+        $ingestionPackageBuilder->setSubmission($this->submission);
+        $ingestionPackageBuilder->setGalleys([$this->galley]);
+        $extractedFiles = $ingestionPackageBuilder->extractsGalleysFiles([$this->galley]);
 
         $submissionFile = $this->galley->getFile();
         $expectedFilePath = $packageDir . '/' . $submissionFile->getData('name', $this->locale);
@@ -142,7 +146,8 @@ class IngestionPackageBuilderTest extends PKPTestCase
 
     public function testGalleysExtractionWithNoGalleys(): void
     {
-        $ingestionPackageBuilder = new IngestionPackageBuilder($this->submission);
+        $ingestionPackageBuilder = new IngestionPackageBuilder($this->clientKey, $this->journalShortName);
+        $ingestionPackageBuilder->setGalleys([]);
         $extractedFiles = $ingestionPackageBuilder->extractsGalleysFiles();
 
         $this->assertFalse($extractedFiles);
@@ -150,7 +155,9 @@ class IngestionPackageBuilderTest extends PKPTestCase
 
     public function testBuildsIngestionPackage(): void
     {
-        $ingestionPackageBuilder = new IngestionPackageBuilder($this->submission);
+        $ingestionPackageBuilder = new IngestionPackageBuilder($this->clientKey, $this->journalShortName);
+        $ingestionPackageBuilder->setSubmission($this->submission);
+        $ingestionPackageBuilder->setGalleys([$this->galley]);
         $buildStatus = $ingestionPackageBuilder->buildIngestionPackage();
         $packageDir = IngestionPackageBuilder::PACKAGE_DIR_SUFFIX.$this->submission->getId();
 
