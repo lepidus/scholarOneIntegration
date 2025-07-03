@@ -1,18 +1,11 @@
 <?php
 
 use DOMDocument;
-use PKP\tests\DatabaseTestCase;
-use APP\facades\Repo;
-use APP\submission\Submission;
-use APP\publication\Publication;
-use APP\author\Author;
-use PKP\galley\Galley;
-use PKP\submissionFile\SubmissionFile;
+use PKP\tests\PKPTestCase;
 use APP\plugins\generic\scholarOneIntegration\classes\GoXmlBuilder;
 
-class GoXmlBuilderTest extends DatabaseTestCase
+class GoXmlBuilderTest extends PKPTestCase
 {
-    private $goXmlBuilder;
     private $goXmlPath = '/tmp/scholarone_test_go.xml';
     private $packageFileName = 'scholarone_ingestion_package.zip';
     private $metadataXmlPath = '/tmp/scholarone_test_metadata.xml';
