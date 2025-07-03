@@ -3,6 +3,8 @@
 use PKP\tests\PKPTestCase;
 use APP\submission\Submission;
 use APP\publication\Publication;
+use PKP\galley\Galley;
+use PKP\submissionFile\SubmissionFile;
 use APP\facades\Repo;
 use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
 
@@ -10,6 +12,7 @@ class IngestionPackageBuilderTest extends PKPTestCase
 {
     private $submission;
     private $locale = 'pt_BR';
+    private $galley;
     private $doi = '10.1234/LepidusPreprints.5678';
     private $title = [
         'en' => 'Sad songs about love',
@@ -50,6 +53,8 @@ class IngestionPackageBuilderTest extends PKPTestCase
     {
         parent::setUp();
         $this->submission = $this->createSubmission();
+        $this->galley = $this->createSubmissionGalley();
+        // criar keywords
     }
 
     public function tearDown(): void
@@ -59,6 +64,8 @@ class IngestionPackageBuilderTest extends PKPTestCase
         if (is_dir($packageDir)) {
             rmdir($packageDir);
         }
+
+        // excluir keywords
     }
 
     private function createSubmission()
@@ -80,7 +87,56 @@ class IngestionPackageBuilderTest extends PKPTestCase
             ])
         ]);
 
+        $submission->setData('currentPublicationId', $publication->getId());
+        $submission->setData('publications', [$publication]);
+
         return $submission;
+    }
+
+    private function createSubmissionGalley()
+    {
+        $submissionFile = new SubmissionFile();
+        $submissionFile->setAllData([
+            'id' => 4285,
+            'submissionId' => $this->submission->getId(),
+            'name' => [
+                'en' => 'main_document_' . $this->submission->getId() . '.pdf',
+                'pt_BR' => 'documento_principal_' . $this->submission->getId() . '.pdf'
+            ],
+            'locale' => $this->locale,
+            'path' => '../plugins/generic/scholarOneIntegration/tests/fixtures/dummy.pdf',
+            'mimeType' => 'application/pdf'
+        ]);
+
+        $galley = new Galley();
+        $galley->setAllData([
+            'id' => 1712,
+            'publicationId' => $this->submission->getCurrentPublication()->getId(),
+            'submissionFileId' => $submissionFile->getId(),
+            'locale' => $this->locale,
+            'label' => 'PDF'
+        ]);
+        $galley->_submissionFile = $submissionFile;
+
+        return $galley;
+    }
+
+    public function testExtractsGalleysFiles(): void
+    {
+        $packageDir = IngestionPackageBuilder::PACKAGE_DIR_SUFFIX.$this->submission->getId();
+        mkdir($packageDir);
+
+        $ingestionPackageBuilder = new IngestionPackageBuilder($this->submission, [$this->galley]);
+        $extractedFiles = $ingestionPackageBuilder->extractsGalleysFiles();
+
+        $submissionFile = $this->galley->getFile();
+        $expectedFilePath = $packageDir . '/' . $submissionFile->getData('name', $this->locale);
+
+        $this->assertEquals($expectedFilePath, $extractedFiles[0]);
+        $this->assertFileExists($expectedFilePath);
+        $this->assertFileEquals(__DIR__.'/fixtures/dummy.pdf', $expectedFilePath);
+
+        unlink($expectedFilePath);
     }
 
     public function testBuildsIngestionPackage(): void
