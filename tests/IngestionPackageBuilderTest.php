@@ -189,8 +189,9 @@ class IngestionPackageBuilderTest extends DatabaseTestCase
         $this->assertTrue($buildStatus);
         $this->assertDirectoryExists($packageDir);
 
+        $goFilePath = $packageDir . DIRECTORY_SEPARATOR . IngestionPackageBuilder::GO_XML_NAME;
         $archiveFilePath = $packageDir . DIRECTORY_SEPARATOR . IngestionPackageBuilder::ARCHIVE_FILE_NAME;
-        // $this->assertFileExists($packageDir . '/go.xml');
+        $this->assertFileExists($goFilePath);
         $this->assertFileExists($archiveFilePath);
 
         $zip = new ZipArchive();
@@ -200,6 +201,7 @@ class IngestionPackageBuilderTest extends DatabaseTestCase
         $this->assertNotFalse($zip->locateName('documento_principal_1234.pdf'));
         $zip->close();
 
+        unlink($goFilePath);
         unlink($archiveFilePath);
     }
 }

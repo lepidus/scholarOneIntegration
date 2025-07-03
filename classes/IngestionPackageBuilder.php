@@ -5,6 +5,7 @@ namespace APP\plugins\generic\scholarOneIntegration\classes;
 use PKP\config\Config;
 use APP\submission\Submission;
 use APP\plugins\generic\scholarOneIntegration\classes\MetadataXmlBuilder;
+use APP\plugins\generic\scholarOneIntegration\classes\GoXmlBuilder;
 
 class IngestionPackageBuilder
 {
@@ -55,6 +56,11 @@ class IngestionPackageBuilder
 
         $this->createArchiveFileZip($metadataXmlPath, $extractedFiles);
         $this->cleanMetadataXmlAndExtractedFiles($metadataXmlPath, $extractedFiles);
+
+        $archiveFilePath = $packageDir . DIRECTORY_SEPARATOR . self::ARCHIVE_FILE_NAME;
+        $goXmlPath = $packageDir . DIRECTORY_SEPARATOR . self::GO_XML_NAME;
+        $goXmlBuilder = new GoXmlBuilder($this->clientKey, $this->journalShortName);
+        $goXmlBuilder->createGoXml($goXmlPath, self::ARCHIVE_FILE_NAME, $metadataXmlPath, $extractedFiles);
 
         return true;
     }
