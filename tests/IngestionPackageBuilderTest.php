@@ -139,6 +139,14 @@ class IngestionPackageBuilderTest extends PKPTestCase
         unlink($expectedFilePath);
     }
 
+    public function testGalleysExtractionWithNoGalleys(): void
+    {
+        $ingestionPackageBuilder = new IngestionPackageBuilder($this->submission);
+        $extractedFiles = $ingestionPackageBuilder->extractsGalleysFiles();
+
+        $this->assertFalse($extractedFiles);
+    }
+
     public function testBuildsIngestionPackage(): void
     {
         $ingestionPackageBuilder = new IngestionPackageBuilder($this->submission);
