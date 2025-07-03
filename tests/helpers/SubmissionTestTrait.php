@@ -1,0 +1,103 @@
+<?php
+
+namespace APP\plugins\generic\scholarOneIntegration\tests\helpers;
+
+use PKP\db\DAORegistry;
+use APP\facades\Repo;
+use APP\submission\Submission;
+use APP\publication\Publication;
+use APP\author\Author;
+
+trait SubmissionTestTrait
+{
+    private $locale = 'pt_BR';
+    private $doi = '10.1234/LepidusPreprints.5678';
+    private $title = [
+        'en' => 'Sad songs about love',
+        'pt_BR' => 'Músicas tristes sobre amor'
+    ];
+    private $abstract = [
+        'en' => 'Example of abstract',
+        'pt_BR' => 'Exemplo de resumo'
+    ];
+    private $keywords = [
+        'en' => ['song', 'love'],
+        'pt_BR' => ['música', 'amor']
+    ];
+    private $authors = [
+        [
+            'id' => 1,
+            'givenName' => 'John',
+            'familyName' => 'Doe',
+            'email' => 'john.doe@example.com',
+            'affiliation' => 'University of Example'
+        ],
+        [
+            'id' => 2,
+            'givenName' => 'Jane',
+            'familyName' => 'Smith',
+            'email' => 'jane.smith@example.com'
+        ],
+        [
+            'id' => 3,
+            'givenName' => 'Alice',
+            'familyName' => 'Johnson',
+            'email' => 'alice.johnson@example.com',
+            'affiliation' => 'Example University'
+        ]
+    ];
+
+    private function createSubmission()
+    {
+        $submission = new Submission();
+        $submission->setAllData([
+            'id' => 1234,
+            'locale' => $this->locale
+        ]);
+
+        $publication = new Publication();
+        $publication->setAllData([
+            'id' => 1245,
+            'title' => $this->title,
+            'abstract' => $this->abstract,
+            'primaryContactId' => 1,
+            'doiObject' =>  Repo::doi()->newDataObject([
+                'doi' => $this->doi
+            ])
+        ]);
+
+        $authors = [];
+        foreach ($this->authors as $authorData) {
+            $author = new Author();
+            $author->setId($authorData['id']);
+            $author->setData('givenName', $authorData['givenName']);
+            $author->setData('familyName', $authorData['familyName']);
+            $author->setData('email', $authorData['email']);
+            if (isset($authorData['affiliation'])) {
+                $author->setData('affiliation', $authorData['affiliation'], $this->locale);
+            }
+
+            $authors[] = $author;
+        }
+
+        $publication->setData('authors', $authors);
+        $submission->setData('currentPublicationId', $publication->getId());
+        $submission->setData('publications', [$publication]);
+
+        return $submission;
+    }
+
+    private function createSubmissionKeywords()
+    {
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $publication = $this->submission->getCurrentPublication();
+        $submissionKeywordDao->insertKeywords($this->keywords, $publication->getId(), false);
+    }
+
+    private function deleteSubmissionKeywords()
+    {
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $publication = $this->submission->getCurrentPublication();
+        $submissionKeywordDao->deleteByPublicationId($publication->getId());
+    }
+}
