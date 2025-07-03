@@ -1,15 +1,16 @@
 <?php
 
 use ZipArchive;
-use PKP\tests\PKPTestCase;
+use PKP\tests\DatabaseTestCase;
 use APP\submission\Submission;
 use APP\publication\Publication;
+use APP\author\Author;
 use PKP\galley\Galley;
 use PKP\submissionFile\SubmissionFile;
 use APP\facades\Repo;
 use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
 
-class IngestionPackageBuilderTest extends PKPTestCase
+class IngestionPackageBuilderTest extends DatabaseTestCase
 {
     private $clientKey = '59b4ca87-2c51-exemplo-4a62jd-04woci';
     private $journalShortName = 'lepiduspreprints';
@@ -57,18 +58,20 @@ class IngestionPackageBuilderTest extends PKPTestCase
         parent::setUp();
         $this->submission = $this->createSubmission();
         $this->galley = $this->createSubmissionGalley();
-        // criar keywords
+        $this->createSubmissionKeywords();
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $publication = $this->submission->getCurrentPublication();
+        $submissionKeywordDao->deleteByPublicationId($publication->getId());
+
         $packageDir = IngestionPackageBuilder::PACKAGE_DIR_SUFFIX.$this->submission->getId();
         if (is_dir($packageDir)) {
             rmdir($packageDir);
         }
-
-        // excluir keywords
     }
 
     private function createSubmission()
@@ -90,10 +93,32 @@ class IngestionPackageBuilderTest extends PKPTestCase
             ])
         ]);
 
+        $authors = [];
+        foreach ($this->authors as $authorData) {
+            $author = new Author();
+            $author->setId($authorData['id']);
+            $author->setData('givenName', $authorData['givenName']);
+            $author->setData('familyName', $authorData['familyName']);
+            $author->setData('email', $authorData['email']);
+            if (isset($authorData['affiliation'])) {
+                $author->setData('affiliation', $authorData['affiliation'], $this->locale);
+            }
+
+            $authors[] = $author;
+        }
+
+        $publication->setData('authors', $authors);
         $submission->setData('currentPublicationId', $publication->getId());
         $submission->setData('publications', [$publication]);
 
         return $submission;
+    }
+
+    private function createSubmissionKeywords()
+    {
+        $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
+        $publication = $this->submission->getCurrentPublication();
+        $submissionKeywordDao->insertKeywords($this->keywords, $publication->getId(), false);
     }
 
     private function createSubmissionGalley()
@@ -135,9 +160,9 @@ class IngestionPackageBuilderTest extends PKPTestCase
         $extractedFiles = $ingestionPackageBuilder->extractsGalleysFiles([$this->galley]);
 
         $submissionFile = $this->galley->getFile();
-        $expectedFilePath = $packageDir . '/' . $submissionFile->getData('name', $this->locale);
+        $expectedFilePath = $packageDir . DIRECTORY_SEPARATOR . $submissionFile->getData('name', $this->locale);
 
-        $this->assertEquals($expectedFilePath, $extractedFiles[0]);
+        $this->assertEquals($expectedFilePath, $packageDir . DIRECTORY_SEPARATOR . $extractedFiles[0]);
         $this->assertFileExists($expectedFilePath);
         $this->assertFileEquals(__DIR__.'/fixtures/dummy.pdf', $expectedFilePath);
 
@@ -164,15 +189,17 @@ class IngestionPackageBuilderTest extends PKPTestCase
         $this->assertTrue($buildStatus);
         $this->assertDirectoryExists($packageDir);
 
-        $archiveFilePath = $packageDir . '/archive_file.zip';
+        $archiveFilePath = $packageDir . DIRECTORY_SEPARATOR . IngestionPackageBuilder::ARCHIVE_FILE_NAME;
         // $this->assertFileExists($packageDir . '/go.xml');
         $this->assertFileExists($archiveFilePath);
 
         $zip = new ZipArchive();
         $this->assertTrue($zip->open($archiveFilePath));
         $this->assertEquals(2, $zip->numFiles);
-        $this->assertNotFalse($zip->locateName('metadata.xml'));
+        $this->assertNotFalse($zip->locateName(IngestionPackageBuilder::METADATA_XML_NAME));
         $this->assertNotFalse($zip->locateName('documento_principal_1234.pdf'));
         $zip->close();
+
+        unlink($archiveFilePath);
     }
 }
