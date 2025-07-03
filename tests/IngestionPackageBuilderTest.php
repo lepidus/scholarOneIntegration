@@ -1,5 +1,6 @@
 <?php
 
+use ZipArchive;
 use PKP\tests\PKPTestCase;
 use APP\submission\Submission;
 use APP\publication\Publication;
@@ -153,14 +154,18 @@ class IngestionPackageBuilderTest extends PKPTestCase
         $buildStatus = $ingestionPackageBuilder->buildIngestionPackage();
         $packageDir = IngestionPackageBuilder::PACKAGE_DIR_SUFFIX.$this->submission->getId();
 
-
         $this->assertTrue($buildStatus);
         $this->assertDirectoryExists($packageDir);
 
+        $archiveFilePath = $packageDir . '/archive_file.zip';
         // $this->assertFileExists($packageDir . '/go.xml');
-        // $this->assertFileExists($packageDir . '/archive_file.zip');
+        $this->assertFileExists($archiveFilePath);
 
-        // Check presence of the metadata XML file inside the zip
-        // Check presence of all files inside the zip
+        $zip = new ZipArchive();
+        $this->assertTrue($zip->open($archiveFilePath));
+        $this->assertEquals(2, $zip->numFiles);
+        $this->assertNotFalse($zip->locateName('metadata.xml'));
+        $this->assertNotFalse($zip->locateName('documento_principal_1234.pdf'));
+        $zip->close();
     }
 }
