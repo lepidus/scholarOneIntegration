@@ -83,7 +83,6 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
                     }
                 } else {
                     $form->initData();
-                    $form->display($request);
                 }
 
                 return new JSONMessage(true, $form->fetch($request));

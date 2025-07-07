@@ -7,18 +7,18 @@
 <form class="pkp_form" id="scholarOneIntegrationSettingsForm" method="post" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
     {csrf}
     {include file="controllers/notification/inPlaceNotification.tpl" notificationId="scholarOneIntegrationSettingsFormNotification"}
-    {fbvFormArea id="scholarOneIntegrationSettings" title="common.yes"}
+    {fbvFormArea id="scholarOneIntegrationSettings"}
         {fbvFormSection label="plugins.generic.scholarOneIntegration.settings.journalShortName" required=true}
-			{fbvElement
+            {fbvElement
                 type="text"
                 id="journalShortName"
                 label="plugins.generic.scholarOneIntegration.settings.journalShortName.description"
                 value=$journalShortName|escape
                 size=$fbvStyles.size.MEDIUM
             }
-		{/fbvFormSection}
-		{fbvFormSection label="plugins.generic.scholarOneIntegration.settings.clientKey" required=true}
-			{fbvElement
+        {/fbvFormSection}
+        {fbvFormSection label="plugins.generic.scholarOneIntegration.settings.clientKey" required=true}
+            {fbvElement
                 type="text"
                 password="true"
                 id="clientKey"
@@ -26,9 +26,9 @@
                 value=$clientKey|escape
                 size=$fbvStyles.size.MEDIUM
             }
-		{/fbvFormSection}
+        {/fbvFormSection}
         {fbvFormSection label="plugins.generic.scholarOneIntegration.settings.accessKey" required=true}
-			{fbvElement
+            {fbvElement
                 type="text"
                 password="true"
                 id="accessKey"
@@ -36,9 +36,9 @@
                 value=$accessKey|escape
                 size=$fbvStyles.size.MEDIUM
             }
-		{/fbvFormSection}
+        {/fbvFormSection}
         {fbvFormSection label="plugins.generic.scholarOneIntegration.settings.privateKey" required=true}
-			{fbvElement
+            {fbvElement
                 type="text"
                 password="true"
                 id="privateKey"
@@ -46,7 +46,7 @@
                 value=$privateKey|escape
                 size=$fbvStyles.size.MEDIUM
             }
-		{/fbvFormSection}
+        {/fbvFormSection}
     {/fbvFormArea}
     {fbvFormButtons}
 </form>
