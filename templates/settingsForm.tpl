@@ -14,6 +14,7 @@
                 id="journalShortName"
                 label="plugins.generic.scholarOneIntegration.settings.journalShortName.description"
                 value=$journalShortName|escape
+                required="true"
                 size=$fbvStyles.size.MEDIUM
             }
         {/fbvFormSection}
@@ -24,6 +25,7 @@
                 id="clientKey"
                 label="plugins.generic.scholarOneIntegration.settings.clientKey.description"
                 value=$clientKey|escape
+                required="true"
                 size=$fbvStyles.size.MEDIUM
             }
         {/fbvFormSection}
@@ -34,6 +36,7 @@
                 id="accessKey"
                 label="plugins.generic.scholarOneIntegration.settings.accessKey.description"
                 value=$accessKey|escape
+                required="true"
                 size=$fbvStyles.size.MEDIUM
             }
         {/fbvFormSection}
@@ -44,6 +47,7 @@
                 id="privateKey"
                 label="plugins.generic.scholarOneIntegration.settings.privateKey.description"
                 value=$privateKey|escape
+                required="true"
                 size=$fbvStyles.size.MEDIUM
             }
         {/fbvFormSection}
