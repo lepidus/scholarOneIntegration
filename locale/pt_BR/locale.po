@@ -16,3 +16,27 @@ msgstr "Integração ScholarOne"
 
 msgid "plugins.generic.scholarOneIntegration.description"
 msgstr "Integra o OPS e o ScholarOne, ingerindo preprints do OPS na plataforma ScholarOne"
+
+msgid "plugins.generic.scholarOneIntegration.settings.journalShortName"
+msgstr "Nome curto da revista"
+
+msgid "plugins.generic.scholarOneIntegration.settings.journalShortName.description"
+msgstr "Este valor pode ser encontrado no final da URL do site ScholarOne"
+
+msgid "plugins.generic.scholarOneIntegration.settings.clientKey"
+msgstr "Chave do cliente"
+
+msgid "plugins.generic.scholarOneIntegration.settings.clientKey.description"
+msgstr "A chave do cliente fornecida pelo ScholarOne"
+
+msgid "plugins.generic.scholarOneIntegration.settings.accessKey"
+msgstr "Chave de acesso"
+
+msgid "plugins.generic.scholarOneIntegration.settings.accessKey.description"
+msgstr "A chave de acesso para o bucket S3 de Integração de Submissão"
+
+msgid "plugins.generic.scholarOneIntegration.settings.privateKey"
+msgstr "Chave privada"
+
+msgid "plugins.generic.scholarOneIntegration.settings.privateKey.description"
+msgstr "A chave privada para o bucket S3 de Integração de Submissão"
