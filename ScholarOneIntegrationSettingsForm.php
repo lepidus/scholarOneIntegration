@@ -8,6 +8,7 @@ use APP\core\Application;
 use APP\template\TemplateManager;
 use PKP\db\DAORegistry;
 use PKP\form\validation\FormValidator;
+use APP\plugins\generic\scholarOneIntegration\classes\APIKeyEncryption;
 
 class ScholarOneIntegrationSettingsForm extends Form
 {
@@ -18,6 +19,11 @@ class ScholarOneIntegrationSettingsForm extends Form
         'clientKey' => 'string',
         'accessKey' => 'string',
         'privateKey' => 'string'
+    ];
+    private const ENCRYPTED_VARS = [
+        'clientKey',
+        'accessKey',
+        'privateKey'
     ];
 
     public function __construct(Plugin $plugin, int $contextId)
@@ -32,7 +38,13 @@ class ScholarOneIntegrationSettingsForm extends Form
     {
         $this->_data = [];
         foreach (self::CONFIG_VARS as $configVar => $type) {
-            $this->_data[$configVar] = $this->plugin->getSetting($this->contextId, $configVar);
+            $settingValue = $this->plugin->getSetting($this->contextId, $configVar);
+
+            if (in_array($configVar, self::ENCRYPTED_VARS)) {
+                $settingValue = APIKeyEncryption::decryptString($settingValue);
+            }
+
+            $this->_data[$configVar] = $settingValue;
         }
     }
 
@@ -53,7 +65,13 @@ class ScholarOneIntegrationSettingsForm extends Form
     public function execute(...$functionArgs)
     {
         foreach (self::CONFIG_VARS as $configVar => $type) {
-            $this->plugin->updateSetting($this->contextId, $configVar, $this->getData($configVar), $type);
+            $settingValue = $this->getData($configVar);
+
+            if (in_array($configVar, self::ENCRYPTED_VARS)) {
+                $settingValue = APIKeyEncryption::encryptString($settingValue);
+            }
+
+            $this->plugin->updateSetting($this->contextId, $configVar, $settingValue, $type);
         }
         parent::execute(...$functionArgs);
     }
