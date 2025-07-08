@@ -40,7 +40,7 @@ class ScholarOneIntegrationSettingsForm extends Form
         foreach (self::CONFIG_VARS as $configVar => $type) {
             $settingValue = $this->plugin->getSetting($this->contextId, $configVar);
 
-            if (in_array($configVar, self::ENCRYPTED_VARS)) {
+            if (in_array($configVar, self::ENCRYPTED_VARS) && !empty($settingValue)) {
                 $settingValue = APIKeyEncryption::decryptString($settingValue);
             }
 
