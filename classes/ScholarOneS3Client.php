@@ -37,12 +37,6 @@ class ScholarOneS3Client
         $this->s3Client = $s3Client;
     }
 
-    public function setCredentials($accessKey, $secretKey)
-    {
-        $this->accessKey = $accessKey;
-        $this->secretKey = $secretKey;
-    }
-
     public function setStack($stack)
     {
         $this->stack = $stack;
