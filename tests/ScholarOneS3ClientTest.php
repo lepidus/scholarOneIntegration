@@ -19,10 +19,9 @@ class ScholarOneS3ClientTest extends TestCase
 
     private function createScholarOneS3Client($fileName)
     {
-        $s3Client = new ScholarOneS3Client();
+        $s3Client = new ScholarOneS3Client($this->testAccessKey, $this->testSecretKey);
         $mockS3Client = $this->getS3ClientMock($fileName);
         $s3Client->setS3Client($mockS3Client);
-        $s3Client->setCredentials($this->testAccessKey, $this->testSecretKey);
         $s3Client->setStack($this->scholarOneStack);
         $s3Client->setClientKey($this->scholarOneClientKey);
         $s3Client->setDevelopmentMode(true);
@@ -48,6 +47,8 @@ class ScholarOneS3ClientTest extends TestCase
         $mockS3Client->expects($this->any())
             ->method('putObject')
             ->will($this->returnValue($response));
+
+        return $mockS3Client;
     }
 
     public function testClientDepositsPackage()
