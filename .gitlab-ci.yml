@@ -9,6 +9,16 @@ include:
       - 'templates/groups/ops/unit_tests.yml'
       - 'templates/groups/ops/cypress_tests.yml'
 
+.php_dependencies: &php_dependencies
+  before_script:
+    - apt update && apt install php-gd php-zip php-xml -yqq
+
+code_formatting_check:
+  <<: *php_dependencies
+
+release_plugin:
+  <<: *php_dependencies
+
 .unit_test_template:
   before_script:
     - sed -i 's/api_key_secret = ""/api_key_secret = "$API_KEY_SECRET"/' /var/www/ops/config.inc.php
