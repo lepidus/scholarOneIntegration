@@ -40,13 +40,13 @@
                 size=$fbvStyles.size.MEDIUM
             }
         {/fbvFormSection}
-        {fbvFormSection label="plugins.generic.scholarOneIntegration.settings.privateKey" required=true}
+        {fbvFormSection label="plugins.generic.scholarOneIntegration.settings.secretKey" required=true}
             {fbvElement
                 type="text"
                 password="true"
-                id="privateKey"
-                label="plugins.generic.scholarOneIntegration.settings.privateKey.description"
-                value=$privateKey|escape
+                id="secretKey"
+                label="plugins.generic.scholarOneIntegration.settings.secretKey.description"
+                value=$secretKey|escape
                 required="true"
                 size=$fbvStyles.size.MEDIUM
             }

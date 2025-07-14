@@ -35,8 +35,8 @@ msgstr "Chave de acesso"
 msgid "plugins.generic.scholarOneIntegration.settings.accessKey.description"
 msgstr "A chave de acesso para o bucket S3 de Integração de Submissão"
 
-msgid "plugins.generic.scholarOneIntegration.settings.privateKey"
-msgstr "Chave privada"
+msgid "plugins.generic.scholarOneIntegration.settings.secretKey"
+msgstr "Chave secreta"
 
-msgid "plugins.generic.scholarOneIntegration.settings.privateKey.description"
-msgstr "A chave privada para o bucket S3 de Integração de Submissão"
+msgid "plugins.generic.scholarOneIntegration.settings.secretKey.description"
+msgstr "A chave secreta para o bucket S3 de Integração de Submissão"

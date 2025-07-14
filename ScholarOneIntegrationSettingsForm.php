@@ -18,12 +18,12 @@ class ScholarOneIntegrationSettingsForm extends Form
         'journalShortName' => 'string',
         'clientKey' => 'string',
         'accessKey' => 'string',
-        'privateKey' => 'string'
+        'secretKey' => 'string'
     ];
     private const ENCRYPTED_VARS = [
         'clientKey',
         'accessKey',
-        'privateKey'
+        'secretKey'
     ];
 
     public function __construct(Plugin $plugin, int $contextId)
