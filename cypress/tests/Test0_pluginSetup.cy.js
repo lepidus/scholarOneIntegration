@@ -21,19 +21,19 @@ describe('ScholarOne Integration - Plugin setup', function () {
 		cy.get('input[name=clientKey]').focus().clear();
         cy.contains('Access Key');
 		cy.get('input[name=accessKey]').focus().clear();
-        cy.contains('Private Key');
-        cy.get('input[name=privateKey]').focus().clear();
+        cy.contains('Secret Key');
+        cy.get('input[name=secretKey]').focus().clear();
 
 		cy.get('#scholarOneIntegrationSettingsForm button:contains("OK")').click();
 		cy.get('label[for^=journalShortName].error').should('contain', 'This field is required.');
 		cy.get('label[for^=clientKey].error').should('contain', 'This field is required.');
 		cy.get('label[for^=accessKey].error').should('contain', 'This field is required.');
-		cy.get('label[for^=privateKey].error').should('contain', 'This field is required.');
+		cy.get('label[for^=secretKey].error').should('contain', 'This field is required.');
 
         cy.get('input[name=journalShortName]').focus().type('testjournalname');
 		cy.get('input[name=clientKey]').focus().type('testclientkey');
 		cy.get('input[name=accessKey]').focus().type('testaccesskey');
-        cy.get('input[name=privateKey]').focus().type('testprivatekey');
+        cy.get('input[name=secretKey]').focus().type('testsecretkey');
 
         cy.get('#scholarOneIntegrationSettingsForm button:contains("OK")').click();
 		cy.get('div:contains("Your changes have been saved.")');
