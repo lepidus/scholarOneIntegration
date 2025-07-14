@@ -13,10 +13,14 @@ namespace APP\plugins\generic\scholarOneIntegration;
 
 use PKP\plugins\GenericPlugin;
 use APP\core\Application;
+use PKP\plugins\Hook;
+use APP\facades\Repo;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\core\JSONMessage;
 use APP\notification\NotificationManager;
+use APP\plugins\generic\scholarOneIntegration\classes\APIKeyEncryption;
+use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
 use APP\plugins\generic\scholarOneIntegration\ScholarOneIntegrationSettingsForm;
 
 class ScholarOneIntegrationPlugin extends GenericPlugin
@@ -29,9 +33,9 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
             return true;
         }
 
-        // if ($success && $this->getEnabled($mainContextId)) {
-        //     // Add hooks
-        // }
+        if ($success && $this->getEnabled($mainContextId)) {
+            Hook::add('Publication::publish', [$this, 'ingestSubmissionOnPosting']);
+        }
 
         return $success;
     }
@@ -88,5 +92,33 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
                 return new JSONMessage(true, $form->fetch($request));
         }
         return parent::manage($args, $request);
+    }
+
+    public function ingestSubmissionOnPosting($hookName, $params)
+    {
+        $publication = $params[0];
+        $submission = $params[2];
+        $contextId = $submission->getContextId();
+
+        if ($publication->getData('version') > 1) {
+            return;
+        }
+
+        $clientKey = $this->getSetting($contextId, 'clientKey');
+        $journalShortName = $this->getSetting($contextId, 'journalShortName');
+        if (empty($clientKey) || empty($journalShortName)) {
+            return;
+        }
+
+        $clientKey = APIKeyEncryption::decryptString($clientKey);
+        $galleys = Repo::galley()->getCollector()
+            ->filterByPublicationIds(['publicationIds' => $publication->getId()])
+            ->getMany()
+            ->toArray();
+
+        $ingestionPackageBuilder = new IngestionPackageBuilder($clientKey, $journalShortName);
+        $ingestionPackageBuilder->setSubmission($submission);
+        $ingestionPackageBuilder->setGalleys($galleys);
+        $ingestionPackageBuilder->buildIngestionPackage();
     }
 }
