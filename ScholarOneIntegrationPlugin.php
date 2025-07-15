@@ -21,6 +21,7 @@ use PKP\core\JSONMessage;
 use APP\notification\NotificationManager;
 use APP\plugins\generic\scholarOneIntegration\classes\APIKeyEncryption;
 use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
+use APP\plugins\generic\scholarOneIntegration\classes\ScholarOneS3Client;
 use APP\plugins\generic\scholarOneIntegration\ScholarOneIntegrationSettingsForm;
 
 class ScholarOneIntegrationPlugin extends GenericPlugin
@@ -99,26 +100,58 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
         $publication = $params[0];
         $submission = $params[2];
         $contextId = $submission->getContextId();
+        $ingestionSettings = $this->getIngestionSettings($contextId);
 
-        if ($publication->getData('version') > 1) {
+        if ($publication->getData('version') > 1 || empty($ingestionSettings)) {
             return;
         }
 
-        $clientKey = $this->getSetting($contextId, 'clientKey');
-        $journalShortName = $this->getSetting($contextId, 'journalShortName');
-        if (empty($clientKey) || empty($journalShortName)) {
-            return;
-        }
-
-        $clientKey = APIKeyEncryption::decryptString($clientKey);
         $galleys = Repo::galley()->getCollector()
             ->filterByPublicationIds(['publicationIds' => $publication->getId()])
             ->getMany()
             ->toArray();
 
-        $ingestionPackageBuilder = new IngestionPackageBuilder($clientKey, $journalShortName);
+        $ingestionPackageBuilder = new IngestionPackageBuilder(
+            $ingestionSettings['clientKey'],
+            $ingestionSettings['journalShortName']
+        );
         $ingestionPackageBuilder->setSubmission($submission);
         $ingestionPackageBuilder->setGalleys($galleys);
-        $ingestionPackageBuilder->buildIngestionPackage();
+        $packageBuildingStatus = $ingestionPackageBuilder->buildIngestionPackage();
+
+        if (!$packageBuildingStatus) {
+            return;
+        }
+
+        $packageDirectory = $ingestionPackageBuilder->getPackageDir();
+        $goXmlFile = $packageDirectory . DIRECTORY_SEPARATOR . IngestionPackageBuilder::GO_XML_NAME;
+        $archiveFile = $packageDirectory . DIRECTORY_SEPARATOR . IngestionPackageBuilder::ARCHIVE_FILE_NAME;
+
+        $s3Client = new ScholarOneS3Client(
+            $ingestionSettings['accessKey'],
+            $ingestionSettings['secretKey']
+        );
+        $s3Client->setClientKey($ingestionSettings['clientKey']);
+
+        $s3Client->depositFile($goXmlFile);
+        $s3Client->depositFile($archiveFile);
+    }
+
+    private function getIngestionSettings(int $contextId): array
+    {
+        $clientKey = $this->getSetting($contextId, 'clientKey');
+        $accessKey = $this->getSetting($contextId, 'accessKey');
+        $secretKey = $this->getSetting($contextId, 'secretKey');
+
+        if (empty($clientKey) || empty($accessKey) || empty($secretKey)) {
+            return [];
+        }
+
+        return [
+            'journalShortName' => $this->getSetting($contextId, 'journalShortName'),
+            'clientKey' =>  APIKeyEncryption::decryptString($clientKey),
+            'accessKey' =>  APIKeyEncryption::decryptString($accessKey),
+            'secretKey' =>  APIKeyEncryption::decryptString($secretKey)
+        ];
     }
 }

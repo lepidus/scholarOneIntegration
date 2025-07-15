@@ -35,7 +35,7 @@ class IngestionPackageBuilder
         $this->galleys = $galleys;
     }
 
-    private function getPackageDir(): string
+    public function getPackageDir(): string
     {
         return self::PACKAGE_DIR_SUFFIX . $this->submission->getId();
     }
