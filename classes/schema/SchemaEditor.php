@@ -1,5 +1,7 @@
 <?php
 
+namespace APP\plugins\generic\scholarOneIntegration\classes\schema;
+
 use PKP\plugins\Hook;
 
 class SchemaEditor
