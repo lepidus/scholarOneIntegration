@@ -133,8 +133,23 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
         );
         $s3Client->setClientKey($ingestionSettings['clientKey']);
 
-        $s3Client->depositFile($goXmlFile);
-        $s3Client->depositFile($archiveFile);
+        $okStatus = 200;
+        $depositStatusGoXml = $s3Client->depositFile($goXmlFile);
+        if ($depositStatusGoXml['statusCode'] != $okStatus) {
+            // add message to submission event log
+            $ingestionPackageBuilder->cleanPackageDirectory();
+            return;
+        }
+
+        $depositStatusArchive = $s3Client->depositFile($archiveFile);
+        if ($depositStatusArchive['statusCode'] != $okStatus) {
+            // add message to submission event log
+            $ingestionPackageBuilder->cleanPackageDirectory();
+            return;
+        }
+
+        // Write to submission event log that the package was successfully deposited
+        $ingestionPackageBuilder->cleanPackageDirectory();
     }
 
     private function getIngestionSettings(int $contextId): array
