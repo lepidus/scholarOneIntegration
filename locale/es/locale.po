@@ -41,3 +41,10 @@ msgstr "Clave secreta"
 
 msgid "plugins.generic.scholarOneIntegration.settings.secretKey.description"
 msgstr "La clave secreta para el bucket S3 de Integración de Envíos"
+
+
+msgid "plugins.generic.scholarOneIntegration.log.errorDepositingFile"
+msgstr "Error al depositar el archivo {$filename} en ScholarOne. El mensaje devuelto fue: {$errorMessage}"
+
+msgid "plugins.generic.scholarOneIntegration.log.successfulDeposit"
+msgstr "La submisión fue depositada exitosamente en ScholarOne"

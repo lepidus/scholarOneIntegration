@@ -13,14 +13,17 @@ namespace APP\plugins\generic\scholarOneIntegration;
 
 use PKP\plugins\GenericPlugin;
 use APP\core\Application;
+use PKP\core\Core;
 use PKP\plugins\Hook;
 use APP\facades\Repo;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\core\JSONMessage;
 use APP\notification\NotificationManager;
+use APP\log\event\SubmissionEventLogEntry;
 use APP\plugins\generic\scholarOneIntegration\classes\APIKeyEncryption;
 use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
+use APP\plugins\generic\scholarOneIntegration\classes\schema\SchemaEditor;
 use APP\plugins\generic\scholarOneIntegration\classes\ScholarOneS3Client;
 use APP\plugins\generic\scholarOneIntegration\ScholarOneIntegrationSettingsForm;
 
@@ -35,6 +38,7 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
         }
 
         if ($success && $this->getEnabled($mainContextId)) {
+            $this->editSchemas();
             Hook::add('Publication::publish', [$this, 'ingestSubmissionOnPosting']);
         }
 
@@ -49,6 +53,12 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
     public function getDescription()
     {
         return __('plugins.generic.scholarOneIntegration.description');
+    }
+
+    private function editSchemas()
+    {
+        $schemaEditor = new SchemaEditor();
+        Hook::add('Schema::add::eventLog', [$schemaEditor, 'editEventLogSchema']);
     }
 
     public function getActions($request, $actionArgs)
@@ -136,19 +146,36 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
         $okStatus = 200;
         $depositStatusGoXml = $s3Client->depositFile($goXmlFile);
         if ($depositStatusGoXml['statusCode'] != $okStatus) {
-            // add message to submission event log
+            $this->writeToSubmissionEventLog(
+                $submission,
+                'plugins.generic.scholarOneIntegration.log.errorDepositingFile',
+                [
+                    'filename' => IngestionPackageBuilder::GO_XML_NAME,
+                    'errorMessage' => $depositStatusGoXml['errorMessage']
+                ]
+            );
             $ingestionPackageBuilder->cleanPackageDirectory();
             return;
         }
 
         $depositStatusArchive = $s3Client->depositFile($archiveFile);
         if ($depositStatusArchive['statusCode'] != $okStatus) {
-            // add message to submission event log
+            $this->writeToSubmissionEventLog(
+                $submission,
+                'plugins.generic.scholarOneIntegration.log.errorDepositingFile',
+                [
+                    'filename' => IngestionPackageBuilder::ARCHIVE_FILE_NAME,
+                    'errorMessage' => $depositStatusArchive['errorMessage']
+                ]
+            );
             $ingestionPackageBuilder->cleanPackageDirectory();
             return;
         }
 
-        // Write to submission event log that the package was successfully deposited
+        $this->writeToSubmissionEventLog(
+            $submission,
+            'plugins.generic.scholarOneIntegration.log.successfulDeposit'
+        );
         $ingestionPackageBuilder->cleanPackageDirectory();
     }
 
@@ -168,5 +195,22 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
             'accessKey' =>  APIKeyEncryption::decryptString($accessKey),
             'secretKey' =>  APIKeyEncryption::decryptString($secretKey)
         ];
+    }
+
+    private function writeToSubmissionEventLog($submission, $messageKey, $params = [])
+    {
+        $user = Application::get()->getRequest()->getUser();
+
+        $eventLogData = array_merge([
+            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocId' => $submission->getId(),
+            'userId' => $user->getId(),
+            'eventType' => SubmissionEventLogEntry::SUBMISSION_LOG_METADATA_UPDATE,
+            'message' => $messageKey,
+            'dateLogged' => Core::getCurrentDate(),
+        ], $params);
+
+        $eventLog = Repo::eventLog()->newDataObject($eventLogData);
+        Repo::eventLog()->add($eventLog);
     }
 }
