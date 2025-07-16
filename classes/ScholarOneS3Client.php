@@ -56,11 +56,20 @@ class ScholarOneS3Client
     {
         $fileName = basename($filePath);
         $bucketName = $this->developmentMode ? self::BUCKET_NAME_DEV : self::BUCKET_NAME_PROD;
-        $result = $this->s3Client->putObject([
-            'Bucket' => $bucketName,
-            'Key' => $this->stack . '/incoming/' . $this->clientKey . '/' . $fileName,
-            'SourceFile' => $filePath,
-        ]);
+
+        try {
+            $result = $this->s3Client->putObject([
+                'Bucket' => $bucketName,
+                'Key' => $this->stack . '/incoming/' . $this->clientKey . '/' . $fileName,
+                'SourceFile' => $filePath,
+            ]);
+        } catch (\Aws\Exception\AwsException $e) {
+            error_log('ScholarOne Integration - Error while depositing file to S3: ' . $e->getMessage());
+            return [
+                'statusCode' => $e->getStatusCode(),
+                'errorMessage' => $e->getMessage()
+            ];
+        }
 
         return [
             'statusCode' => $result['@metadata']['statusCode'],

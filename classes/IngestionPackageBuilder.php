@@ -35,9 +35,18 @@ class IngestionPackageBuilder
         $this->galleys = $galleys;
     }
 
-    private function getPackageDir(): string
+    public function getPackageDir(): string
     {
         return self::PACKAGE_DIR_SUFFIX . $this->submission->getId();
+    }
+
+    public function cleanPackageDirectory(): void
+    {
+        $packageDir = $this->getPackageDir();
+        if (is_dir($packageDir)) {
+            array_map('unlink', glob("$packageDir/*.*"));
+            rmdir($packageDir);
+        }
     }
 
     public function buildIngestionPackage(): bool

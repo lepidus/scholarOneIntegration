@@ -123,4 +123,19 @@ class IngestionPackageBuilderTest extends DatabaseTestCase
         unlink($goFilePath);
         unlink($archiveFilePath);
     }
+
+    public function testCleansUpPackageDirectory(): void
+    {
+        $ingestionPackageBuilder = new IngestionPackageBuilder($this->clientKey, $this->journalShortName);
+        $ingestionPackageBuilder->setSubmission($this->submission);
+        $ingestionPackageBuilder->setGalleys([$this->galley]);
+        $buildStatus = $ingestionPackageBuilder->buildIngestionPackage();
+        $packageDir = IngestionPackageBuilder::PACKAGE_DIR_SUFFIX.$this->submission->getId();
+
+        $this->assertTrue($buildStatus);
+        $this->assertDirectoryExists($packageDir);
+
+        $ingestionPackageBuilder->cleanPackageDirectory();
+        $this->assertDirectoryDoesNotExist($packageDir);
+    }
 }
