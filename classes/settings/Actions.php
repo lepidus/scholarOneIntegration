@@ -5,7 +5,8 @@ namespace APP\plugins\generic\scholarOneIntegration\classes\settings;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 
-class Actions {
+class Actions
+{
     private $plugin;
 
     public function __construct(&$plugin)
@@ -18,7 +19,7 @@ class Actions {
         if (!$this->plugin->getEnabled()) {
             return $parentActions;
         }
-        
+
         $router = $request->getRouter();
         $settingsLinkAction = new LinkAction(
             'settings',
