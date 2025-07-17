@@ -1,6 +1,6 @@
 <?php
 
-namespace APP\plugins\generic\scholarOneIntegration;
+namespace APP\plugins\generic\scholarOneIntegration\classes\settings;
 
 use PKP\form\Form;
 use PKP\plugins\Plugin;
@@ -10,7 +10,7 @@ use PKP\db\DAORegistry;
 use PKP\form\validation\FormValidator;
 use APP\plugins\generic\scholarOneIntegration\classes\APIKeyEncryption;
 
-class ScholarOneIntegrationSettingsForm extends Form
+class SettingsForm extends Form
 {
     private $plugin;
     private $contextId;
