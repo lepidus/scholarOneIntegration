@@ -17,6 +17,9 @@ msgstr "Integração ScholarOne"
 msgid "plugins.generic.scholarOneIntegration.description"
 msgstr "Integra o OPS e o ScholarOne, ingerindo preprints do OPS na plataforma ScholarOne"
 
+msgid "plugins.generic.scholarOneIntegration.settings.emptyApiSecretKey"
+msgstr "É necessário que o administrador defina um segredo no arquivo de configuração do site ('api_key_secret')."
+
 msgid "plugins.generic.scholarOneIntegration.settings.journalShortName"
 msgstr "Nome curto da revista"
 
