@@ -154,11 +154,13 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
             return [];
         }
 
+        $encrypter = new APIKeyEncryption();
+
         return [
             'journalShortName' => $this->getSetting($contextId, 'journalShortName'),
-            'clientKey' =>  APIKeyEncryption::decryptString($clientKey),
-            'accessKey' =>  APIKeyEncryption::decryptString($accessKey),
-            'secretKey' =>  APIKeyEncryption::decryptString($secretKey)
+            'clientKey' =>  $encrypter->decryptString($clientKey),
+            'accessKey' =>  $encrypter->decryptString($accessKey),
+            'secretKey' =>  $encrypter->decryptString($secretKey)
         ];
     }
 
