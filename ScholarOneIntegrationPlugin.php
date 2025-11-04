@@ -17,6 +17,8 @@ use PKP\core\Core;
 use PKP\plugins\Hook;
 use APP\facades\Repo;
 use APP\log\event\SubmissionEventLogEntry;
+use Illuminate\Database\Migrations\Migration;
+use APP\plugins\generic\scholarOneIntegration\classes\migration\EncryptLegacyCredentials;
 use APP\plugins\generic\scholarOneIntegration\classes\APIKeyEncryption;
 use APP\plugins\generic\scholarOneIntegration\classes\IngestionPackageBuilder;
 use APP\plugins\generic\scholarOneIntegration\classes\schema\SchemaEditor;
@@ -50,6 +52,11 @@ class ScholarOneIntegrationPlugin extends GenericPlugin
     public function getDescription()
     {
         return __('plugins.generic.scholarOneIntegration.description');
+    }
+
+    public function getInstallMigration(): Migration
+    {
+        return new EncryptLegacyCredentials();
     }
 
     private function editSchemas()
