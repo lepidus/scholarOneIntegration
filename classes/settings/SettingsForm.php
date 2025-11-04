@@ -14,6 +14,7 @@ class SettingsForm extends Form
 {
     private $plugin;
     private $contextId;
+    private $encrypter;
     private const CONFIG_VARS = [
         'journalShortName' => 'string',
         'clientKey' => 'string',
@@ -28,10 +29,15 @@ class SettingsForm extends Form
 
     public function __construct(Plugin $plugin, int $contextId)
     {
-        parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
-
         $this->plugin = $plugin;
         $this->contextId = $contextId;
+        $this->encrypter = new APIKeyEncryption();
+
+        $template = $this->encrypter->secretConfigExists()
+            ? 'settingsForm.tpl'
+            : 'settingsFormEmptySecret.tpl';
+
+        parent::__construct($plugin->getTemplateResource($template));
     }
 
     public function initData()
@@ -40,8 +46,12 @@ class SettingsForm extends Form
         foreach (self::CONFIG_VARS as $configVar => $type) {
             $settingValue = $this->plugin->getSetting($this->contextId, $configVar);
 
-            if (in_array($configVar, self::ENCRYPTED_VARS) && !empty($settingValue)) {
-                $settingValue = APIKeyEncryption::decryptString($settingValue);
+            if (
+                in_array($configVar, self::ENCRYPTED_VARS)
+                && !empty($settingValue)
+                && $this->encrypter->textIsEncrypted($settingValue)
+            ) {
+                $settingValue = $this->encrypter->decryptString($settingValue);
             }
 
             $this->_data[$configVar] = $settingValue;
@@ -68,7 +78,7 @@ class SettingsForm extends Form
             $settingValue = $this->getData($configVar);
 
             if (in_array($configVar, self::ENCRYPTED_VARS)) {
-                $settingValue = APIKeyEncryption::encryptString($settingValue);
+                $settingValue = $this->encrypter->encryptString($settingValue);
             }
 
             $this->plugin->updateSetting($this->contextId, $configVar, $settingValue, $type);
